@@ -9,14 +9,22 @@ const util = require('util');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
+const {
+  collectSourceFilePaths,
+  extractModules,
+  createModules
+} = require('./lib/elm-helpers');
+
+let prevModules = [];
+const styles = {};
 
 const cssModulify = (path, data, map) => {
-  let json = {};
-  const getJSON = (_, _json) => json = _json;
+  const getJSON = (_, _json) => {
+    styles[path] = _json;
+  };
 
   return postcss([postcssModules({getJSON})]).process(data, {from: path, map}).then(x => {
-    const exports = 'module.exports = ' + JSON.stringify(json) + ';';
-    return { data: x.css, map: x.map, exports };
+    return { data: x.css, map: x.map };
   });
 };
 
@@ -69,6 +77,8 @@ class SassCompiler {
     this.optimize = cfg.optimize;
     this.config = (cfg.plugins && cfg.plugins.sass) || {};
     this.modules = this.config.modules || this.config.cssModules;
+    this.styleDir = this.config.styles || 'app';
+    this.elmDir = this.config.elm || 'app';
     delete this.config.modules;
     delete this.config.cssModules;
     this.mode = this.config.mode;
@@ -228,6 +238,23 @@ class SassCompiler {
         return params;
       }
     });
+  }
+
+
+  onCompile(files) {
+    if (this.modules) {
+      const relevantFiles = files.filter(x => x.type === 'stylesheet');
+      if (relevantFiles.length) {
+        const filterEmpty = path => Object.keys(styles[path] || {}).length;
+        const paths = collectSourceFilePaths(relevantFiles)
+                        .filter(filterEmpty);
+
+        const modules = paths.map(extractModules(styles, this.styleDir, this.elmDir));
+
+        modules.forEach(createModules(prevModules));
+        prevModules = modules;
+      }
+    }
   }
 }
 

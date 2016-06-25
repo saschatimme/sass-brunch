@@ -1,11 +1,12 @@
 {
-  "name": "sass-brunch",
+  "name": "elm-sass-brunch",
   "version": "2.6.3",
   "description": "Adds Sass support to brunch.",
-  "author": "Paul Miller (http://paulmillr.com/)",
+  "author": "Sascha Timme",
   "homepage": "https://github.com/brunch/sass-brunch",
   "license": "MIT",
   "keywords": [
+    "elm",
     "brunch",
     "brunch-plugin",
     "brunch-compiler",
@@ -22,11 +23,12 @@
     "test": "node_modules/.bin/eslint index.js && node_modules/.bin/mocha"
   },
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "node-sass": "~3.7.0",
-    "progeny": "~0.5.1",
-    "promise": "~6.0.0",
     "postcss": "~5.0.19",
-    "postcss-modules": "~0.4.0"
+    "postcss-modules": "~0.4.0",
+    "progeny": "~0.5.1",
+    "promise": "~6.0.0"
   },
   "devDependencies": {
     "mocha": "^2.0.1",
